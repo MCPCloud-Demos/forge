@@ -5,13 +5,12 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "bunx prisma db push --skip-generate && bun run --watch src/index.ts",
+    "dev": "bunx prisma generate && bunx prisma db push --skip-generate && bun run --watch src/index.ts",
     "start": "bun run src/index.ts",
     "seed": "bun run src/seed.ts",
     "db:push": "bunx prisma db push",
     "generate": "bunx prisma generate",
-    "test": "bun test",
-    "postinstall": "bunx prisma generate"
+    "test": "bunx prisma generate && bun test"
   },
   "dependencies": {
     "@apollo/server": "^4.11.2",
