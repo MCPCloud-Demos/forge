@@ -1,0 +1,34 @@
+# Fly.io deployment for the Forge demo API (org: mcpcloud-demos).
+# Provisioning, in order:
+#   fly apps create forge-mcpcloud-demo --org mcpcloud-demos
+#   fly postgres create --name forge-mcpcloud-demo-db --org mcpcloud-demos --region iad
+#   fly postgres attach forge-mcpcloud-demo-db --app forge-mcpcloud-demo
+#   fly secrets set FORGE_DEMO_TOKEN=<token> FORGE_CLIENT_ID=<id> FORGE_CLIENT_SECRET=<secret> --app forge-mcpcloud-demo
+#   fly deploy
+
+app = "forge-mcpcloud-demo"
+primary_region = "iad"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  SEED_ON_STARTUP = "true"
+  ENABLE_TRAFFIC_GENERATOR = "true"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 1
+
+  [[http_service.checks]]
+    method = "GET"
+    path = "/healthz"
+    interval = "15s"
+    timeout = "2s"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "512mb"

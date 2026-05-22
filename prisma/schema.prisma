@@ -1,0 +1,130 @@
+// Forge — Code & Issues API. GitHub-style dev platform backing an Apollo
+// GraphQL server. One Postgres database; provider is fixed to postgresql, so
+// local development runs against the docker-compose Postgres (see README).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id
+  tenantId  String
+  login     String
+  name      String?
+  avatarUrl String?
+  createdAt DateTime @default(now())
+
+  @@index([tenantId])
+}
+
+model Repository {
+  id            String   @id
+  tenantId      String
+  owner         String
+  name          String
+  description   String?
+  isPrivate     Boolean  @default(false)
+  defaultBranch String   @default("main")
+  stars         Int      @default(0)
+  createdAt     DateTime @default(now())
+
+  @@index([tenantId])
+  @@index([owner, name])
+}
+
+model Label {
+  id           String  @id
+  repositoryId String
+  name         String
+  color        String
+  description  String?
+
+  @@index([repositoryId])
+}
+
+model Issue {
+  id           String    @id
+  repositoryId String
+  number       Int
+  title        String
+  body         String?
+  state        String    @default("OPEN")
+  authorId     String
+  assigneeIds  String[]  @default([])
+  labelIds     String[]  @default([])
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @default(now())
+  closedAt     DateTime?
+
+  @@index([repositoryId])
+}
+
+model PullRequest {
+  id             String    @id
+  repositoryId   String
+  number         Int
+  title          String
+  body           String?
+  state          String    @default("OPEN")
+  authorId       String
+  headRef        String
+  baseRef        String
+  merged         Boolean   @default(false)
+  mergeCommitSha String?
+  checksPassing  Boolean   @default(true)
+  reviewerIds    String[]  @default([])
+  labelIds       String[]  @default([])
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @default(now())
+  mergedAt       DateTime?
+
+  @@index([repositoryId])
+}
+
+model Review {
+  id            String   @id
+  pullRequestId String
+  authorId      String
+  state         String
+  body          String?
+  createdAt     DateTime @default(now())
+
+  @@index([pullRequestId])
+}
+
+model Comment {
+  id          String   @id
+  subjectId   String
+  subjectType String
+  authorId    String
+  body        String
+  createdAt   DateTime @default(now())
+
+  @@index([subjectId])
+}
+
+model Branch {
+  id           String  @id
+  repositoryId String
+  name         String
+  sha          String
+  protected    Boolean @default(false)
+
+  @@index([repositoryId])
+}
+
+model Commit {
+  id           String   @id
+  repositoryId String
+  sha          String
+  message      String
+  authorId     String
+  committedAt  DateTime @default(now())
+
+  @@index([repositoryId])
+}
